@@ -1,0 +1,140 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.kotlin.plugin.compose' version '2.0.21' // For Jetpack Compose
+}
+
+android {
+    namespace 'com.example.voice_change_new'
+    compileSdk 34 // Latest stable SDK
+
+    defaultConfig {
+        applicationId "com.example.voice_change_new"
+        minSdk 21 // Good base compatibility
+        targetSdk 34 // Latest stable SDK
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.5.3'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    // Add lint configuration to handle the errors
+    lint {
+        abortOnError false // Don't abort on lint errors for now
+        checkReleaseBuilds false // Don't check release builds
+        // Create a baseline to ignore existing issues
+        baseline = file("lint-baseline.xml")
+    }
+
+    // Dependency conflict resolution
+    configurations.all {
+        resolutionStrategy {
+            force 'androidx.lifecycle:lifecycle-runtime-ktx:2.7.0'
+            force 'androidx.lifecycle:lifecycle-common:2.7.0'
+            force 'androidx.core:core-ktx:1.12.0'
+
+            // Exclude problematic commons-logging
+            exclude group: 'commons-logging', module: 'commons-logging'
+        }
+    }
+
+    // Packaging conflict resolution
+    packagingOptions {
+        resources {
+            excludes += [
+                    'META-INF/DEPENDENCIES',
+                    'META-INF/LICENSE',
+                    'META-INF/LICENSE.txt',
+                    'META-INF/license.txt',
+                    'META-INF/NOTICE',
+                    'META-INF/NOTICE.txt',
+                    'META-INF/notice.txt',
+                    'META-INF/ASL2.0',
+                    'META-INF/*.kotlin_module',
+                    // Add these to exclude commons-logging related files
+                    'org/apache/commons/logging/**',
+                    'org/apache/http/**'
+            ]
+        }
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            returnDefaultValues = true
+        }
+    }
+}
+
+dependencies {
+    // Core dependencies
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.7.0'
+    implementation 'androidx.activity:activity-compose:1.8.2'
+
+    // Waveform visualization
+    implementation 'com.github.massoudss:waveformSeekBar:1.1.4'
+
+    // Google API for authentication and Google Drive
+    // Use OkHttp instead of the default HTTP client
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+
+    // Exclude commons-logging from Google API dependencies
+    implementation('com.google.api-client:google-api-client-android:1.31.2') {
+        exclude group: 'org.apache.httpcomponents'
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
+
+    implementation('com.google.apis:google-api-services-drive:v3-rev197-1.25.0') {
+        exclude group: 'org.apache.httpcomponents'
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
+
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
+
+    // Material Design and Jetpack Compose
+    implementation platform('androidx.compose:compose-bom:2024.03.00')
+    implementation 'androidx.compose.ui:ui'
+    implementation 'androidx.compose.ui:ui-tooling-preview'
+    implementation 'androidx.compose.material3:material3'
+    implementation 'androidx.compose.runtime:runtime'
+// Add or update Material Design dependency
+    implementation 'com.google.android.material:material:1.11.0'
+
+    // Make sure you have ConstraintLayout
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    // Media handling
+    implementation 'androidx.media:media:1.7.0'
+
+    // Test dependencies
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    // Debug tools for Compose
+    debugImplementation 'androidx.compose.ui:ui-tooling'
+}
